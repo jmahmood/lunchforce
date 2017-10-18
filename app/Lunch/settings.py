@@ -16,6 +16,7 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'), '../')
 
 
 # Quick-start development settings - unsuitable for production
@@ -138,10 +139,10 @@ TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),
+    os.path.join(PROJECT_ROOT, 'static'),
 )
 
-STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'staticfiles')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
 
 # Simplified static file serving.
