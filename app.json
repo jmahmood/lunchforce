@@ -8,8 +8,9 @@
   "formation": {
   },
   "addons": [
-
+    "heroku-postgresql", "papertrail", "newrelic"
   ],
+  "keywords": ["python", "django" ],
   "buildpacks": [
     {
       "url": "heroku/python"
