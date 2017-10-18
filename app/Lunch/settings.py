@@ -141,6 +141,8 @@ STATICFILES_DIRS = (
     os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),
 )
 
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'staticfiles')
+
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
