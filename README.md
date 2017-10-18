@@ -5,15 +5,11 @@ Make new friends over lunch.
 
 What is Lunch Cloud?
 --------------------
-Lunch Cloud is a social grease that helps you invite co-workers to lunch.
+Lunch Cloud is corporate social lubricant that helps you meet co-workers by inviting them to lunch.
 
-It integrates with your system of choice (Email first; then Chatter / Twitter / Facebook ...) at the workplace.
+It integrates with your SNS of choice (Starting with email; then Chatter / Twitter / Facebook ...) at the workplace.
 
-You give it information about your food preferences, and you give it a day.  It will match you up with someone with similar tastes.
+You give it information about your food preferences, and availability.  It will match you up with someone with similar tastes.
 
-It will also give you one social task to do (check in at a restaurant, get a selfie, something simple to break the ice).
-
-You can submit anonymous feedback afterwards to fine tune our system
-
-Complete them to get points!
+You can submit anonymous feedback afterwards to fine tune our system.
 
