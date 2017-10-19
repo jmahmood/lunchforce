@@ -14,11 +14,12 @@ if __name__ == "__main__":
     # when developing and deploying.  We use the heroku cli to get the correct info and set it as the environmental name.
     # You can't hardcode DBs, the URL is constantly changing.
 
-    # We only use this locally, don't try this at home.
-    db_url = subprocess.run('heroku config -a {0} -s'.format(os.environ.get('HEROKU_STAGING_APP_NAME')).split(' '),
-                        stdout=subprocess.PIPE).stdout.decode('utf8').split('\'')[1]
+    if os.environ.get('DATABASE_URL', None) == None:
+        # We only use this locally, don't try this at home.
+        db_url = subprocess.run('heroku config -a {0} -s'.format(os.environ.get('HEROKU_STAGING_APP_NAME')).split(' '),
+                            stdout=subprocess.PIPE).stdout.decode('utf8').split('\'')[1]
 
-    os.environ.setdefault("DATABASE_URL", db_url)
+        os.environ.setdefault("DATABASE_URL", db_url)
 
     try:
         from django.core.management import execute_from_command_line

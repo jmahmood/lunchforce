@@ -10,7 +10,7 @@ DATABASES['default'].update(db_from_env)
 SECRET_KEY = '454e6r$_043&d*_@b49@*w6fc$k_x(or^9$vgabsn+=-uc$n!i'
 
 # Allow all host headers
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['jbm-lunchforce-staging.herokuapp.com']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
