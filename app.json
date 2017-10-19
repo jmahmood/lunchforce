@@ -9,7 +9,7 @@
         "heroku-postgresql:hobby-dev"
       ],
       "scripts":{
-        "test": "python manage.py test"
+        "test": "python src/manage.py test"
       }
     }
   },
