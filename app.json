@@ -9,6 +9,7 @@
         "heroku-postgresql:hobby-dev"
       ],
       "scripts":{
+        "test-setup": "python manage.py collectstatic --noinput",
         "test": "python app/manage.py test"
       }
     }
