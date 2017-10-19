@@ -9,7 +9,6 @@ import django.views.generic
 
 import LunchCloud.forms
 
-# from app.LunchCloud.forms import RegistrationForm
 from LunchCloud.models import Profile, InvitationCode
 
 
