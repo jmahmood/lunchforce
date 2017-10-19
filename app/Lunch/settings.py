@@ -22,19 +22,6 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# WARNING: Insecure settings. ############################################
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '454e6r$_043&d*_@b49@*w6fc$k_x(or^9$vgabsn+=-uc$n!i'
-
-# Allow all host headers
-ALLOWED_HOSTS = ['*']
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# #######################################################################
-
 
 # Application definition
 
@@ -48,7 +35,7 @@ INSTALLED_APPS = [
     'LunchCloud.apps.LunchcloudConfig',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,7 +50,7 @@ ROOT_URLCONF = 'Lunch.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,7 +120,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 # Extra places for collectstatic to find static files.
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')

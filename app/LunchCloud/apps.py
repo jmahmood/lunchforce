@@ -6,3 +6,4 @@ from django.apps import AppConfig
 
 class LunchcloudConfig(AppConfig):
     name = 'LunchCloud'
+    verbose_name = 'Lunch Cloud'
