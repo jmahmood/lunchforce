@@ -3,6 +3,16 @@
   "description": "Make new friends over lunch.",
   "scripts": {
   },
+  "environments":{
+    "test":{
+      "addons":[
+        "heroku-postgres:hobby-dev"
+      ],
+      "scripts":{
+        "test": "python manage.py test"
+      }
+    }
+  }
   "env": {
   },
   "formation": {
