@@ -11,7 +11,7 @@
       ],
       "scripts":{
         "test-setup": "python app/manage.py collectstatic --noinput",
-        "test": "python app/manage.py test --keepdb"
+        "test": "python app/manage.py test"
       }
     }
   },
