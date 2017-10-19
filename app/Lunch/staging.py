@@ -8,9 +8,8 @@ print(os.environ.get('HEROKU_POSTGRESQL_JADE_URL'))
 test_db_from_env = dj_database_url.config(env='HEROKU_POSTGRESQL_JADE_URL', conn_max_age=500)
 print(test_db_from_env)
 DATABASES['default']['TEST'].update(test_db_from_env)
-print(
-    DATABASES
-)
+print(DATABASES)
+print(os.environ)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 ALLOWED_HOSTS = ['jbm-lunchforce-staging.herokuapp.com']
