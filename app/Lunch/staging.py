@@ -6,6 +6,7 @@ DATABASES['default'].update(db_from_env)
 
 print(os.environ.get('HEROKU_POSTGRESQL_JADE_URL'))
 test_db_from_env = dj_database_url.config(env='HEROKU_POSTGRESQL_JADE_URL', conn_max_age=500)
+print(test_db_from_env)
 DATABASES['default']['TEST'].update(test_db_from_env)
 print(
     DATABASES

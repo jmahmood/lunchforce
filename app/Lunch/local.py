@@ -8,6 +8,9 @@ DATABASES['default']['TEST'].update(db_from_env)
 print(
     DATABASES
 )
+print(
+    os.environ
+)
 
 # WARNING: Insecure settings. ############################################
 # SECURITY WARNING: keep the secret key used in production secret!

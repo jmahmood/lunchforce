@@ -5,8 +5,9 @@
   },
   "environments":{
     "test":{
-      "addons":[
-        "heroku-postgresql:hobby-dev"
+      "addons": [
+          "heroku-postgresql:in-dyno",
+          "heroku-postgresql:in-dyno"
       ],
       "scripts":{
         "test-setup": "python app/manage.py collectstatic --noinput",
