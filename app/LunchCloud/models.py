@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+import gettext
+_ = gettext.gettext
+
+_THESEED:str = 'jmahmood'
 
 
 class FoodType(models.Model):
@@ -30,16 +36,22 @@ class Profile(models.Model):
     # Email needs to be saved to user.email.
     invited_by = models.ForeignKey("self", null=True, blank=True)
     blacklist = models.ManyToManyField(FoodType, blank=True, related_name='blacklisted_by')
-    whitelist = models.ManyToManyField(FoodType, related_name='whitelisted_by')
+    whitelist = models.ManyToManyField(FoodType, blank=True, related_name='whitelisted_by')
     availability = models.ManyToManyField(Availability, blank=True)
 
     def clean(self):
-        # Don't allow draft entries to have a pub_date.
-        if self.user.username != 'jmahmood' and self.invited_by == None:
+        if self.user.username != _THESEED and self.invited_by is None:
             raise ValidationError(_('You must be invited by someone.'))
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        try:
+            self.clean()
+            super().save(force_insert, force_update, using, update_fields)
+        except ValidationError as e:
+            raise e
 
 
 class InvitationCode(models.Model):
     invited_by = models.ForeignKey(Profile)
-    code = models.CharField(max_length=50, verbose_name='Invitation Code')
+    code = models.CharField(max_length=50, verbose_name='Invitation Code', unique=True)
     used = models.BooleanField(default=False)

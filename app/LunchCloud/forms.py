@@ -10,14 +10,17 @@ class RegistrationForm(forms.Form):
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
-        ic = InvitationCode.objects.filter(code=cleaned_data).filter(used=False)
+        ic = InvitationCode.objects.filter(code=cleaned_data.get('invitation_code')).filter(used=False)
         if ic.count() == 0:
             raise forms.ValidationError('Invalid Invitation code')
 
         return cleaned_data
 
 
-class Availability(forms.Form):
+class AvailabilityForm(forms.Form):
+    frm = forms.DateTimeField()
+    until = forms.DateTimeField()
+
     def clean(self) -> dict:
         cleaned_data = super().clean()
         frm_datetime = cleaned_data.get('frm')
