@@ -73,7 +73,9 @@ WSGI_APPLICATION = 'Lunch.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'TEST': {}
     }
+
 }
 
 db_from_env = dj_database_url.config(conn_max_age=500)
