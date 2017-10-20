@@ -6,7 +6,8 @@
   "environments":{
     "test":{
       "addons": [
-          "heroku-postgresql:hobby-dev"
+          "heroku-postgresql:hobby-dev",
+          "heroku-kafka:basic-0"
       ],
       "scripts":{
         "test-setup": "python app/manage.py collectstatic --noinput",
