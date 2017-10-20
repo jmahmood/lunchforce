@@ -9,7 +9,7 @@ MVP
 - Anything that refers to sending a message refers to sending a message to an appropriate queue in Kafka
 - Listeners will be defined later.
 
-1. ***Administration-oriented***
+1. ✓ ***Administration-oriented***
 
     a. **Food Types** What kind of food restrictions do you want to allow? 
 
@@ -18,13 +18,10 @@ MVP
             - Name (VarChar / 40)
         ii. Admin Page (For FoodType)
 
-    b. **Connections** Review the connections made by the application
+    b. **Events** Review the connections made by the application
 
         i. Model: Event
-            Should store information about each event
-            
-            - EventDate (DateTime field)
-            - Attendees (ManyToManyField(Profile))
+            Information is kept later.
         ii. Admin Page (For FoodType)
 
 2. ***User-oriented***
@@ -71,19 +68,21 @@ MVP
             - AllowEvaluation (Boolean)
             - Status (Picklist(Proposed / Canceled / Awaiting Evaluation / Done))
                 - Proposed: Someone created an event
+                - Confirmed: The Minimum Possible Attendees are attending
                 - Rejected: The event was canceled
                 - Awaiting Evaluation: Waiting for the event to be evaluated after it occured
                 - Done: Evaluation complete
 
         ii. Signal On Create
             - Send message to Event_(%Week%) for the event being created.
+            - TODO> Are we going to use Redis or Kafka? 
             
         iii. Weekly batch job that generates an event if 
             - at least two people with compatibility are available on a day
             - they don't hate each other
             - they haven't had lunch together in the past month
             - Send message to Event_(%Week%) for the event being created.
-            
+            - Stored in /management/commands
     ~~d. **Lunch Request Approval**~~ (Phase 3; to begin with, you approve all lunch requests.)
 
      When you get a request, you will be asked to review it and approve it before it is created

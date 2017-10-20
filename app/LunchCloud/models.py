@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import logging
+import gettext
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-import gettext
+
 _ = gettext.gettext
 
-_THESEED:str = 'jmahmood'
+_THESEED = 'jmahmood'  # The username of the original user who invites everyone.
 
 
 class FoodType(models.Model):
@@ -49,6 +49,25 @@ class Profile(models.Model):
             super().save(force_insert, force_update, using, update_fields)
         except ValidationError as e:
             raise e
+
+
+class LunchEvents(models.Model):
+    event_date = models.DateField()
+    frm = models.TimeField()
+    until = models.TimeField()
+    invitees = models.ManyToManyField(Profile, related_name='invited_to')
+    attendees = models.ManyToManyField(Profile, blank=True, related_name='attended')
+    min_attendees = models.SmallIntegerField('Min number of attendees')
+    max_attendees = models.SmallIntegerField('Max number of attendees')
+    description = models.TextField('Event Description')
+    creator = models.ForeignKey(Profile)
+    allow_evaluation = models.BooleanField(default=False)
+    status = models.CharField(max_length=40, choices=[
+        (_('Proposed'), 'proposed'),
+        (_('Confirmed'), 'confirmed'),
+        (_('Rejected'), 'rejected'),
+        (_('Awaiting Evaluation'), 'awaiting'),
+        (_('Done'), 'done')], default='proposed')
 
 
 class InvitationCode(models.Model):
