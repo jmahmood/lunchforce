@@ -13,14 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.contrib import admin
+import django.contrib.auth.views
 
 import LunchCloud.views
+from LunchCloud.forms import EmailAuthenticationForm
 
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),
-    url('^account/', include('django.contrib.auth.urls')),
+    url('^account/login/$', django.contrib.auth.views.login, {
+        'authentication_form': EmailAuthenticationForm
+    }, 'login'),
+    url('^account/logout/$', django.contrib.auth.views.logout, 'logout'),
     url(r'^login/$', LunchCloud.views.enrollment),
     url(r'^enroll/$', LunchCloud.views.enrollment),
     url(r'^admin/', admin.site.urls),
