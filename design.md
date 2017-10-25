@@ -13,21 +13,21 @@ MVP
 
     a. **Food Types** What kind of food restrictions do you want to allow? 
 
-        i. Model: FoodType
+        ✓ i. Model: FoodType
             Should only be used to populate a select list of some kind.
             - Name (VarChar / 40)
-        ii. Admin Page (For FoodType)
+        ✓ ii. Admin Page (For FoodType)
 
     b. **Events** Review the connections made by the application
 
         i. Model: Event
-            Information is kept later.
-        ii. Admin Page (For FoodType)
+            Information is provided later.
+        ii. Admin Page (For Event)
 
 2. ***User-oriented***
 
     a. **Enroll**
-     Give your email, put in some very basic information for the app (Food type)
+     Give your email, put in some very basic information for the app to help you find a match (Food type)
         
         i. Model: EventProfile
             - Blacklist (ManyToManyField(FoodType))
@@ -76,13 +76,16 @@ MVP
         ii. Signal On Create
             - Send message to Event_(%Week%) for the event being created.
             - TODO> Are we going to use Redis or Kafka? 
-            
-        iii. Weekly batch job that generates an event if 
+                - We will be using Kafka, with the key being set to event_(week number)
+                - 
+
+        iii. Batch job that generates an event if 
             - at least two people with compatibility are available on a day
             - they don't hate each other
             - they haven't had lunch together in the past month
             - Send message to Event_(%Week%) for the event being created.
             - Stored in /management/commands
+            
     ~~d. **Lunch Request Approval**~~ (Phase 3; to begin with, you approve all lunch requests.)
 
      When you get a request, you will be asked to review it and approve it before it is created

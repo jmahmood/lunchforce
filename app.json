@@ -6,8 +6,7 @@
   "environments":{
     "test":{
       "addons": [
-          "heroku-postgresql:hobby-dev",
-          "heroku-kafka:basic-0"
+          "heroku-postgresql:hobby-dev", "heroku-kafka:basic-0"
       ],
       "scripts":{
         "test-setup": "python app/manage.py collectstatic --noinput",
@@ -20,7 +19,7 @@
   "formation": {
   },
   "addons": [
-    "heroku-postgresql", "papertrail", "newrelic"
+    "heroku-postgresql", "papertrail", "newrelic", "heroku-kafka:basic-0"
   ],
   "keywords": ["python", "django" ],
   "buildpacks": [

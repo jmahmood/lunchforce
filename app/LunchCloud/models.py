@@ -27,13 +27,18 @@ class Availability(models.Model):
 
 
 class Profile(models.Model):
+    """
+    The profile is used to store food preferences.
+
+    We may change this in the future, as we want to eventually use SSO,
+    and it isn't clear to me if we can do so with User.
+    """
 
     def __str__(self):
-        return '{0} - Profile'.format(self.user.username)
+        return _('{0} - Profile').format(self.user.username)
 
     user = models.OneToOneField(User, unique=True)
 
-    # Email needs to be saved to user.email.
     invited_by = models.ForeignKey("self", null=True, blank=True)
     blacklist = models.ManyToManyField(FoodType, blank=True, related_name='blacklisted_by')
     whitelist = models.ManyToManyField(FoodType, blank=True, related_name='whitelisted_by')
@@ -57,9 +62,9 @@ class LunchEvents(models.Model):
     until = models.TimeField()
     invitees = models.ManyToManyField(Profile, related_name='invited_to')
     attendees = models.ManyToManyField(Profile, blank=True, related_name='attended')
-    min_attendees = models.SmallIntegerField('Min number of attendees')
-    max_attendees = models.SmallIntegerField('Max number of attendees')
-    description = models.TextField('Event Description')
+    min_attendees = models.SmallIntegerField(_('Min attendees'))
+    max_attendees = models.SmallIntegerField(_('Max attendees'))
+    description = models.TextField(_('Event Description'))
     creator = models.ForeignKey(Profile)
     allow_evaluation = models.BooleanField(default=False)
     status = models.CharField(max_length=40, choices=[
@@ -72,5 +77,5 @@ class LunchEvents(models.Model):
 
 class InvitationCode(models.Model):
     invited_by = models.ForeignKey(Profile)
-    code = models.CharField(max_length=50, verbose_name='Invitation Code', unique=True)
+    code = models.CharField(max_length=50, verbose_name=_('Invitation Code'), unique=True)
     used = models.BooleanField(default=False)

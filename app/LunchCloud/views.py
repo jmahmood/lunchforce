@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 
 import LunchCloud.forms
 from LunchCloud.models import Profile, InvitationCode
+
+
+@login_required
+def index(request: HttpRequest) -> HttpResponse:
+    # This is a simple basic view which is powered by Angular.JS
+    # It just displays your upcoming
+    pass
 
 
 def create_account(form_data: dict) -> (InvitationCode, Profile):
