@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
+from django.views.generic import RedirectView
 
 import LunchCloud.forms
 from LunchCloud.models import Profile, InvitationCode
@@ -55,3 +56,8 @@ def enrollment(request: HttpRequest) -> HttpResponse:
     )
 
     pass
+
+
+class RedirectLoginView(RedirectView):
+    permanent = True
+    url = '/account/login/'

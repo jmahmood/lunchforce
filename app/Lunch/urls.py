@@ -16,17 +16,16 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 import django.contrib.auth.views
-
 import LunchCloud.views
 from LunchCloud.forms import EmailAuthenticationForm
 
+
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),
-    url('^account/login/$', django.contrib.auth.views.login, {
-        'authentication_form': EmailAuthenticationForm
-    }, 'login'),
+    url('^account/login/$', django.contrib.auth.views.login,
+        {'authentication_form': EmailAuthenticationForm}, 'login'),
     url('^account/logout/$', django.contrib.auth.views.logout, 'logout'),
-    url(r'^login/$', LunchCloud.views.enrollment),
     url(r'^enroll/$', LunchCloud.views.enrollment),
+    url(r'^login/$', LunchCloud.views.RedirectLoginView.as_view()),
     url(r'^admin/', admin.site.urls),
 ]
