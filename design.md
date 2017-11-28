@@ -167,3 +167,93 @@ HIPAA Compatibility
 -------------------
 - LOL
 - The “minimum necessary” rule.   We can’t collect extra personal data unless it’s absolutely necessary to perform our services
+
+
+APIs Necessary
+--------------
+
+1. GetInvitation
+    POST
+    url: /InvitationCode/Create/
+    
+    If you are a valid user, generate an invitation code and pass it back to you.  Code is saved to DB.
+
+    Success: 
+        i. {'invitation_code': 'xxxxxxxxxx'}
+        mock: /InvitationCode/Create/Success/
+    Failure
+        i. Abuse: {'invitation_code': null, 'error_message': 'You are abusing the invitation code system'}
+        mock: InvitationCode/Create/Failure/1
+        ii. Banned: {'invitation_code': null, 'error_message': 'You cannot give an invitation code'}
+        mock: InvitationCode/Create/Failure/2
+        iii. Login: {'invitation_code': null, 'error_message': 'You are not logged in'}
+        mock: InvitationCode/Create/Failure/3
+
+
+2. Enrollment
+    POST
+    url: /Enrollment/Create/
+    
+    If you have a valid non-expired invitation code, you can create a login, and are then asked to log in.
+   
+
+3. Login
+    POST
+    Must include username and password fields.
+    url: /Login/
+    
+    Return true and create a cookie if valid data is passed.
+
+    Success: 
+        i. {"success":true}
+        mock: /Login/Success/
+    Failure
+        i. {"success":false}
+        mock: /Login/Failure/
+   
+4. My Events
+    GET
+    User must be logged in to retrieve this.  COOKIE is checked server-side.  Only events the user is signed up for are shown.
+    
+    Success:
+    i. {'success': true, 'message': null, 'appointments':[{'date': ..., 'title': ...., 'people': [...names..]}, ...]}
+
+    Failure:
+    i. {'success': false, 'message': 'You are not logged in', 'appointments': []}
+    ii. {'success': false, 'message': 'You are abusing the system', 'appointments': []}
+   
+5. Public Events
+    GET
+    User must be logged in to retrieve this.  COOKIE is checked server-side.
+    
+    Success:
+    i. {'success': true, 'message': null, 'appointments':[{'date': ..., 'title': ...., 'people': [...names..]}, ...]}
+    
+            // Javascript code below to generate the obj.
+            date_fn = (i) => {
+                return new Date((new Date()).getTime() + i * 1000 * 60 * 60 * 24)
+            }
+        
+            ret = {'success': true, 'message': null, 'appointments': [
+                {'date': date_fn(1), 'title': 'Event 1', 'people': ['Edward', 'Willis']},
+                {'date': date_fn(2), 'title': 'Event 2', 'people': ['Willis', 'Debra']},
+                {'date': date_fn(3), 'title': 'Event 3', 'people': ['Debra', 'Wilhelmina']},
+                {'date': date_fn(4), 'title': 'Event 4', 'people': ['Wilhelmina', 'Thanh', 'David']},
+                {'date': date_fn(5), 'title': 'Event 5', 'people': ['Thanh', 'David']},
+                {'date': date_fn(6), 'title': 'Event 6', 'people': ['David', 'Lori']},
+                {'date': date_fn(7), 'title': 'Event 7', 'people': ['Lori', 'Bobby', 'Charlotte']},
+                {'date': date_fn(8), 'title': 'Event 8', 'people': ['Bobby', 'Charlotte']},
+             ]}
+
+    Failure:
+    i. {'success': false, 'message': 'You are not logged in', 'appointments': []}
+    ii. {'success': false, 'message': 'You are abusing the system', 'appointments': []}
+
+6. Valid Locations
+    GET
+    user must be logged in to retrieve this.  Locations the user can search at.
+
+7. Valid Food Types
+    GET
+    user must be logged in to retrieve this.  Food types that the user can search for.
+

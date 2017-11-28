@@ -16,12 +16,15 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 import django.contrib.auth.views
+from django.http import HttpResponse
+import os
 import LunchCloud.views
 from LunchCloud.forms import EmailAuthenticationForm
 
 
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),
+
     url('^account/login/$', django.contrib.auth.views.login,
         {'authentication_form': EmailAuthenticationForm}, 'login'),
     url('^account/logout/$', django.contrib.auth.views.logout, 'logout'),

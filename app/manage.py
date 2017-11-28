@@ -4,6 +4,7 @@ import subprocess
 
 import os
 import sys
+import json
 
 if __name__ == "__main__":
 
@@ -14,11 +15,13 @@ if __name__ == "__main__":
 
     if os.environ.get('DATABASE_URL', None) is None:
         # We only use this locally, don't try this at home.
-        db_url = subprocess.run('heroku config -a {0} -s'.format(os.environ.get('HEROKU_STAGING_APP_NAME')).split(' '),
-                                stdout=subprocess.PIPE).stdout.decode('utf8').split('\'')[1]
+        cmd = 'heroku config --json -a {0}'.format(os.environ.get('HEROKU_STAGING_APP_NAME')).split(' ')
+        sbp = subprocess.run(cmd, stdout=subprocess.PIPE)
+        raw = sbp.stdout.decode('utf8')
+        js_raw = json.loads(raw.replace('\n', ''))
 
-        os.environ.setdefault("DATABASE_URL", db_url)
-
+        for v in ['KAFKA_CLIENT_CERT', 'DATABASE_URL', 'KAFKA_URL']:
+            os.environ.setdefault(v, js_raw.get(v))
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
