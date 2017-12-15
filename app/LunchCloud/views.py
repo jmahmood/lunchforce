@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 import rest_framework.response
 import LunchCloud.forms
 from LunchCloud import serializers
-from LunchCloud.models import Profile, InvitationCode, LunchEvents, Availability
+from LunchCloud.models import Profile, InvitationCode, LunchEvents, Availability, FoodOption, Location
 from LunchCloud.serializers import ProfileSerializer, AppointmentSerializer
 
 
@@ -116,6 +116,39 @@ class MyLunchEvents(APIView):
         return rest_framework.response.Response(serializer.data)
 
 
+class ProfileUpdate(APIView):
+    def post(self, request: HttpRequest, format=None):
+        try:
+            my_profile: Profile = self.request.user.profile
+        except AttributeError:
+            return rest_framework.response.Response(serializers.ProfileAPISerializer({
+                'success': False,
+                'message': 'You are not logged in.',
+                'updated': False,
+                'profile': None
+            }).data)
+
+        post_data = json.loads(request.body)
+        logging.warning(post_data)
+        profile_details = post_data.get('profile')
+        location_ids = [l.get('id') for l in profile_details.get('locations')]
+        food_ids = [fo.get('id') for fo in profile_details.get('whitelist')]
+        related_locations = Location.objects.filter(external_id__in=location_ids)
+        related_foodoptions = FoodOption.objects.filter(external_id__in=food_ids)
+        my_profile.locations = related_locations
+        my_profile.whitelist = related_foodoptions
+        my_profile.save()
+
+        serializer = serializers.ProfileAPISerializer({
+            'success': True,
+            'message': None,
+            'updated': False,
+            'profile': my_profile
+        })
+
+        return rest_framework.response.Response(serializer.data)
+
+
 class MyProfileDetails(APIView):
     def get(self, request: HttpRequest, format=None):
         try:
@@ -208,3 +241,28 @@ class CreateAvailability(APIView):
 
         return rest_framework.response.Response(serializer.data)
 
+
+class FoodOptions(APIView):
+    def get(self, request: HttpRequest, fmt=None):
+        food_options = FoodOption.objects.filter(enabled=True)
+
+        serializer = serializers.FoodOptionAPISerializer({
+            'success': True,
+            'message': None,
+            'food_options': food_options
+        })
+
+        return rest_framework.response.Response(serializer.data)
+
+
+class Locations(APIView):
+    def get(self, request: HttpRequest, fmt=None):
+        locations = Location.objects.filter(enabled=True)
+
+        serializer = serializers.LocationAPISerializer({
+            'success': True,
+            'message': None,
+            'locations': locations
+        })
+
+        return rest_framework.response.Response(serializer.data)

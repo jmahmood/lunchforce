@@ -24,10 +24,13 @@ import rest_framework.authtoken.views
 
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),
+    url(r'^api/locations/$', LunchCloud.views.Locations.as_view()),
+    url(r'^api/food-options/$', LunchCloud.views.FoodOptions.as_view()),
     url(r'^api/my-availability/$', LunchCloud.views.MyAvailability.as_view()),
     url(r'^api/update-availability/$', LunchCloud.views.CreateAvailability.as_view()),
     url(r'^api/public-appointments/$', LunchCloud.views.PublicLunchEvents.as_view()),
     url(r'^api/my-appointments/$', LunchCloud.views.MyLunchEvents.as_view()),
+    url(r'^api/update-profile/$', LunchCloud.views.ProfileUpdate.as_view()),
     url(r'^api/my-profile/$', LunchCloud.views.MyProfileDetails.as_view()),
     url(r'^enroll/$', LunchCloud.views.enrollment),
     url(r'^login/$', LunchCloud.views.RedirectLoginView.as_view()),

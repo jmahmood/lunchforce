@@ -17,7 +17,7 @@ def uuid_str():
     return str(uuid.uuid4())
 
 
-class FoodType(models.Model):
+class FoodOption(models.Model):
 
     def __str__(self):
         return self.name
@@ -32,7 +32,7 @@ class Location(models.Model):
         return self.name
 
     external_id = models.CharField(max_length=80, default=uuid_str)
-    name = models.CharField(max_length=80, verbose_name="Type of Food", default='')
+    name = models.CharField(max_length=80, verbose_name="Easy-to-understand name of a local landmark")
     enabled = models.BooleanField(default=True)
 
 
@@ -52,8 +52,8 @@ class Profile(models.Model):
     external_id = models.CharField(max_length=80, default=uuid_str)
     invited_by = models.ForeignKey("self", null=True, blank=True)
     locations = models.ManyToManyField(Location, blank=True, related_name='locations')
-    blacklist = models.ManyToManyField(FoodType, blank=True, related_name='blacklisted_by')
-    whitelist = models.ManyToManyField(FoodType, blank=True, related_name='whitelisted_by')
+    blacklist = models.ManyToManyField(FoodOption, blank=True, related_name='blacklisted_by')
+    whitelist = models.ManyToManyField(FoodOption, blank=True, related_name='whitelisted_by')
 
     def clean(self):
         if self.user.username != _THESEED and self.invited_by is None:

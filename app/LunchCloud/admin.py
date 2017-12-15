@@ -5,10 +5,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from LunchCloud.models import FoodType, InvitationCode, Profile, LunchEvents
+from LunchCloud.models import Location, FoodOption, InvitationCode, Profile, LunchEvents
 
 
-class FoodTypeAdmin(admin.ModelAdmin):
+class LocationAdmin(admin.ModelAdmin):
+    pass
+
+
+class FoodOptionAdmin(admin.ModelAdmin):
     pass
 
 
@@ -39,5 +43,6 @@ class CustomUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(LunchEvents, LunchEventsAdmin)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(FoodType, FoodTypeAdmin)
+admin.site.register(FoodOption, FoodOptionAdmin)
+admin.site.register(Location, LocationAdmin)
 admin.site.register(InvitationCode, InvitationCodeAdmin)

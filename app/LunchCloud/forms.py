@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
-from LunchCloud.models import FoodType, InvitationCode
+from LunchCloud.models import FoodOption, InvitationCode
 import gettext
 _ = gettext.gettext
 
@@ -12,7 +12,7 @@ _ = gettext.gettext
 class RegistrationForm(forms.Form):
     invitation_code = forms.CharField(max_length=50, widget=forms.HiddenInput)
     email = forms.EmailField()
-    foods = forms.ModelMultipleChoiceField(queryset=FoodType.objects.filter(enabled=True))
+    foods = forms.ModelMultipleChoiceField(queryset=FoodOption.objects.filter(enabled=True))
 
     def clean(self) -> dict:
         cleaned_data = super().clean()

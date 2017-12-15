@@ -12,7 +12,7 @@ import datetime
 
 # Create your tests here.
 from LunchCloud.forms import RegistrationForm, AvailabilityForm
-from LunchCloud.models import Profile, InvitationCode, FoodType
+from LunchCloud.models import Profile, InvitationCode, FoodOption
 
 
 class AvailabilityFormTests(TestCase):
@@ -40,7 +40,7 @@ class RegistrationFormTests(TestCase):
         super().setUp()
         self.u = User.objects.create(username='jmahmood')
         self.p = Profile.objects.create(user=self.u)
-        self.ft = FoodType.objects.create(name='Halal')
+        self.ft = FoodOption.objects.create(name='Halal')
 
     def testValidRegistration(self):
         ic: InvitationCode = InvitationCode.objects.create(
