@@ -6,7 +6,9 @@ whitenoise==2.0.6
 newrelic
 confluent-kafka
 kafka-helper
-
+djangorestframework
+markdown
+django-filter
 
 cffi==1.8.2
 cryptography
@@ -15,3 +17,5 @@ idna==2.1
 ipaddress==1.0.17
 pyasn1==0.1.9
 pycparser==2.14
+
+django-cors-headers

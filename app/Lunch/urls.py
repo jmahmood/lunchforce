@@ -13,22 +13,25 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 import django.contrib.auth.views
 from django.http import HttpResponse
 import os
 import LunchCloud.views
 from LunchCloud.forms import EmailAuthenticationForm
-
+import rest_framework.authtoken.views
 
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),
-
-    url('^account/login/$', django.contrib.auth.views.login,
-        {'authentication_form': EmailAuthenticationForm}, 'login'),
-    url('^account/logout/$', django.contrib.auth.views.logout, 'logout'),
+    url(r'^api/my-availability/$', LunchCloud.views.MyAvailability.as_view()),
+    url(r'^api/update-availability/$', LunchCloud.views.CreateAvailability.as_view()),
+    url(r'^api/public-appointments/$', LunchCloud.views.PublicLunchEvents.as_view()),
+    url(r'^api/my-appointments/$', LunchCloud.views.MyLunchEvents.as_view()),
+    url(r'^api/my-profile/$', LunchCloud.views.MyProfileDetails.as_view()),
     url(r'^enroll/$', LunchCloud.views.enrollment),
     url(r'^login/$', LunchCloud.views.RedirectLoginView.as_view()),
     url(r'^admin/', admin.site.urls),
+    url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^api-token-auth/', rest_framework.authtoken.views.obtain_auth_token)
 ]

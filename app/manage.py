@@ -20,7 +20,7 @@ if __name__ == "__main__":
         raw = sbp.stdout.decode('utf8')
         js_raw = json.loads(raw.replace('\n', ''))
 
-        for v in ['KAFKA_CLIENT_CERT', 'DATABASE_URL', 'KAFKA_URL']:
+        for v in ['KAFKA_CLIENT_CERT', 'DATABASE_URL', 'KAFKA_URL', 'DJANGO_SECRET_KEY']:
             os.environ.setdefault(v, js_raw.get(v))
     try:
         from django.core.management import execute_from_command_line
