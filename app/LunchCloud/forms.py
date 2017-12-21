@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
-from LunchCloud.models import FoodOption, InvitationCode
+from LunchCloud.models import FoodOption, IntroductionCode
 import gettext
 _ = gettext.gettext
 
@@ -16,7 +16,7 @@ class RegistrationForm(forms.Form):
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
-        ic = InvitationCode.objects.filter(code=cleaned_data.get('invitation_code')).filter(used=False)
+        ic = IntroductionCode.objects.filter(code=cleaned_data.get('invitation_code')).filter(used=False)
         if ic.count() == 0:
             raise forms.ValidationError('Invalid Invitation code')
 

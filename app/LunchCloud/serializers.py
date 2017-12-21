@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from LunchCloud.models import Profile, Availability, FoodOption
+from LunchCloud.models import Profile, Availability, FoodOption, LunchAppointment, IntroductionCode
 
 
 class LocationSerializer(serializers.Serializer):
@@ -17,7 +17,6 @@ class WhitelistSerializer(serializers.Serializer):
 
     def get_id(self, obj: FoodOption):
         return obj.external_id
-
 
 
 class ProfileSerializer(serializers.Serializer):
@@ -105,15 +104,18 @@ class AppointmentSerializer(serializers.Serializer):
     title = serializers.CharField()
     location = serializers.CharField()
     people = serializers.SerializerMethodField()
-    space_available = serializers.IntegerField(read_only=True)
+    space_available = serializers.SerializerMethodField()
 
     # This is not really used by us right now, but may be used to highlight lunches later.
     # On the front end it is used to highlight search results.
     highlight = serializers.BooleanField(default=False)
 
-    def get_people(self, obj):
+    def get_space_available(self, obj: LunchAppointment):
+        return obj.max_attendees - obj.attendees.count()
+
+    def get_people(self, obj: LunchAppointment):
         try:
-            return [(profile.external_id, profile.user.username) for profile in obj.invitees.all()]
+            return [(profile.external_id, profile.user.username) for profile in obj.attendees.all()]
         except AttributeError:
             return []
 
@@ -140,3 +142,19 @@ class AppointmentAPISerializer(serializers.Serializer):
 
     def create(self, validated_data):
         pass
+
+
+class SearchAPISerializer(serializers.Serializer):
+    success = serializers.BooleanField()
+    message = serializers.CharField(max_length=80)
+    everyone = AppointmentSerializer(many=True)
+    youonly = AppointmentSerializer(many=True)
+
+
+class IntroductionAPISerializer(serializers.Serializer):
+    success = serializers.BooleanField()
+    message = serializers.CharField(max_length=80)
+    introduction_code = serializers.SerializerMethodField()
+
+    def get_introduction_code(self, obj: IntroductionCode):
+        return obj.code

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+import uuid
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -12,7 +13,18 @@ import datetime
 
 # Create your tests here.
 from LunchCloud.forms import RegistrationForm, AvailabilityForm
-from LunchCloud.models import Profile, InvitationCode, FoodOption
+from LunchCloud.models import Profile, IntroductionCode, FoodOption
+import names
+import random
+from .models import make_groups
+
+
+
+class BestGroupingTests(TestCase):
+    def testNormalCase(self):
+        people = {TestPerson.factory() for _ in range(0, 10)}
+        print(repr(make_groups(people)))
+
 
 
 class AvailabilityFormTests(TestCase):
@@ -43,7 +55,7 @@ class RegistrationFormTests(TestCase):
         self.ft = FoodOption.objects.create(name='Halal')
 
     def testValidRegistration(self):
-        ic: InvitationCode = InvitationCode.objects.create(
+        ic: IntroductionCode = IntroductionCode.objects.create(
             invited_by=self.p,
             code='123',
             used=False
@@ -58,7 +70,7 @@ class RegistrationFormTests(TestCase):
         self.assertTrue(frm.is_valid())
 
     def testNoReusingInvitationCodes(self):
-        ic: InvitationCode = InvitationCode.objects.create(
+        ic: IntroductionCode = IntroductionCode.objects.create(
             invited_by=self.p,
             code='456',
             used=True

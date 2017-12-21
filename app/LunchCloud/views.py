@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 import rest_framework.response
 import LunchCloud.forms
 from LunchCloud import serializers
-from LunchCloud.models import Profile, InvitationCode, LunchEvents, Availability, FoodOption, Location
+from LunchCloud.models import Profile, IntroductionCode, LunchAppointment, Availability, FoodOption, Location
 from LunchCloud.serializers import ProfileSerializer, AppointmentSerializer
 
 
@@ -25,8 +25,8 @@ def index(request: HttpRequest) -> HttpResponse:
     pass
 
 
-def create_account(form_data: dict) -> (InvitationCode, Profile):
-    ic = InvitationCode.objects.get(code=form_data.get('invitation_code'))
+def create_account(form_data: dict) -> (IntroductionCode, Profile):
+    ic = IntroductionCode.objects.get(code=form_data.get('invitation_code'))
 
     prf: Profile = Profile(
         email=form_data.get('email'),
@@ -71,6 +71,31 @@ class RedirectLoginView(RedirectView):
     url = '/account/login/'
 
 
+class InvitedToEvents(APIView):
+    def get(self, request: HttpRequest, format=None):
+        try:
+            my_profile = self.request.user.profile
+        except AttributeError:
+            return rest_framework.response.Response(serializers.AppointmentAPISerializer({
+                'success': False,
+                'message': 'You are not logged in.',
+                'appointments': None
+            }).data)
+
+        # This are, by nature, events that you are not invited to, but are public.
+        appointments = LunchAppointment.objects.filter(
+            status='proposed').filter(
+            invitees__external_id__contains=my_profile.external_id).exclude(
+            attendees__external_id__contains=my_profile.external_id)
+
+        serializer = serializers.AppointmentAPISerializer({
+            'success': True,
+            'message': None,
+            'appointments': appointments
+        })
+        return rest_framework.response.Response(serializer.data)
+
+
 class PublicLunchEvents(APIView):
     def get(self, request: HttpRequest, format=None):
         try:
@@ -82,10 +107,11 @@ class PublicLunchEvents(APIView):
                 'appointments': None
             }).data)
 
-        appointments = LunchEvents.objects.filter(
+        # This are, by nature, events that you are not invited to, but are public.
+        appointments = LunchAppointment.objects.filter(
             is_private=False).filter(
-            status='Proposed').filter(
-            event_date__gt=datetime.date.today())
+            event_date__gt=datetime.date.today()).exclude(
+            invitees__external_id__contains=my_profile.external_id)
 
         serializer = serializers.AppointmentAPISerializer({
             'success': True,
@@ -95,7 +121,7 @@ class PublicLunchEvents(APIView):
         return rest_framework.response.Response(serializer.data)
 
 
-class MyLunchEvents(APIView):
+class MyLunchAppointments(APIView):
     def get(self, request: HttpRequest, format=None):
         try:
             my_profile = self.request.user.profile
@@ -106,7 +132,7 @@ class MyLunchEvents(APIView):
                 'appointments': None
             }).data)
 
-        appointments = my_profile.invited_to.all()
+        appointments = my_profile.confirmed.filter(event_date__gt=datetime.date.today())
 
         serializer = serializers.AppointmentAPISerializer({
             'success': True,
@@ -129,7 +155,7 @@ class ProfileUpdate(APIView):
             }).data)
 
         post_data = json.loads(request.body)
-        logging.warning(post_data)
+        logging.debug(post_data)
         profile_details = post_data.get('profile')
         location_ids = [l.get('id') for l in profile_details.get('locations')]
         food_ids = [fo.get('id') for fo in profile_details.get('whitelist')]
@@ -265,4 +291,94 @@ class Locations(APIView):
             'locations': locations
         })
 
+        return rest_framework.response.Response(serializer.data)
+
+
+class Search(APIView):
+    def verbose_logging(self, my_profile: Profile, post_data):
+        return """
+Search request received
+
+Requested by: {0}
+Date Requested: {1}
+Locations Requested: {2}
+        """.format(
+            my_profile.user.username,
+            post_data.get('date'),
+            post_data.get('location')
+        )
+
+    def verbose_appointment_logging(self, appointments: [LunchAppointment]):
+        ret = []
+        template = "{0} ({1}) - @ [{2} / {3} ({4})]"
+        for app in appointments:
+            ret.append(template.format(app.title, app.event_date, app.location, app.general_area.name, app.general_area.external_id))
+        return '\n'.join(ret)
+
+    def post(self, request: HttpRequest, fmt=None):
+
+        try:
+            my_profile: Profile = self.request.user.profile
+        except AttributeError:
+            return rest_framework.response.Response(serializers.SearchAPISerializer({
+                'success': False,
+                'message': 'You are not logged in.',
+                'everyone': None,
+                'youonly': None
+            }).data)
+
+        post_data = json.loads(request.body)
+        logging.warning(self.verbose_logging(my_profile, post_data))
+
+        location_ids = [loc.get('id') for loc in post_data.get('location')]
+        y, m, d = post_data.get('date').split('-')
+        dt = datetime.date(year=int(y), month=int(m), day=int(d))
+
+        appointments = LunchAppointment.objects.filter(
+            general_area__external_id__in=location_ids).filter(
+            event_date=dt)
+        logging.debug("These were found:")
+        logging.debug(self.verbose_appointment_logging(appointments))
+        logging.debug("These are all available for the same date: {0}".format(dt))
+        logging.debug(self.verbose_appointment_logging(LunchAppointment.objects.filter(event_date=dt)))
+        logging.debug("These are all available for the same location: ({0})".format(location_ids))
+        logging.debug(self.verbose_appointment_logging(LunchAppointment.objects.filter(general_area__external_id__in=location_ids)))
+
+        serializer = serializers.SearchAPISerializer({
+            'success': True,
+            'message': None,
+            'everyone': appointments.filter(is_private=False),
+            'youonly': appointments.filter(is_private=True).filter(
+                attendees__external_id__contains=my_profile.external_id)
+        })
+
+        return rest_framework.response.Response(serializer.data)
+
+
+
+class Attend(APIView):
+    def post(self, request: HttpRequest, fmt=None):
+        try:
+            my_profile: Profile = self.request.user.profile
+        except AttributeError:
+            return rest_framework.response.Response(serializers.SearchAPISerializer({
+                'success': False,
+                'message': 'You are not logged in.',
+                'everyone': None,
+                'youonly': None
+            }).data)
+
+        post_data = json.loads(request.body)
+        appointment_id = post_data.get('appointment_id')
+        appointment = LunchAppointment.objects.get(external_id=appointment_id)
+
+        appointment.attendees.add(my_profile)
+
+        serializer = serializers.SearchAPISerializer({
+            'success': True,
+            'updated': True,
+            'message': None,
+            'everyone': None,
+            'youonly': None,
+        })
         return rest_framework.response.Response(serializer.data)
