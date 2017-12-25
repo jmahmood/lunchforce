@@ -257,3 +257,11 @@ APIs Necessary
     GET
     user must be logged in to retrieve this.  Food types that the user can search for.
 
+Naming Standards
+----
+Class methods are in lower_case_with_underscores.
+Class variables are the same.
+
+Class names are in CamelCase.
+
+Instantiating a class loads information, running the class will perform transformations.

@@ -15,12 +15,13 @@ if __name__ == "__main__":
 
     if os.environ.get('DATABASE_URL', None) is None:
         # We only use this locally, don't try this at home.
-        cmd = 'heroku config --json -a {0}'.format(os.environ.get('HEROKU_STAGING_APP_NAME')).split(' ')
+        cmd = 'heroku config --json -a {0}'.format(os.environ.get('HEROKU_STAGING_APP_NAME', 'jbm-lunchforce-staging')
+                                                   ).split(' ')
         sbp = subprocess.run(cmd, stdout=subprocess.PIPE)
         raw = sbp.stdout.decode('utf8')
         js_raw = json.loads(raw.replace('\n', ''))
 
-        for v in ['KAFKA_CLIENT_CERT', 'DATABASE_URL', 'KAFKA_URL', 'DJANGO_SECRET_KEY']:
+        for v in ['KAFKA_CLIENT_CERT', 'DATABASE_URL', 'KAFKA_URL', 'DJANGO_SECRET_KEY', 'HEROKU_POSTGRESQL_JADE_URL']:
             os.environ.setdefault(v, js_raw.get(v))
     try:
         from django.core.management import execute_from_command_line

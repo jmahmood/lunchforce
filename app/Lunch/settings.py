@@ -131,9 +131,6 @@ USE_TZ = True
 
 
 # Extra places for collectstatic to find static files.
-
-
-
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
@@ -154,7 +151,7 @@ LOGGING = {
         }
     },
     'handlers': {
-        'console':{
+        'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
@@ -168,11 +165,11 @@ LOGGING = {
     }
 }
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+# noinspection PyUnresolvedReferences
+STATIC_ROOT = os.path.join(PROJECT_ROOT, './staticfiles')
 STATIC_URL = '/static/'
 
 

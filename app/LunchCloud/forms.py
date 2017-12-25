@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from LunchCloud.models import FoodOption, IntroductionCode
 import gettext
+
 _ = gettext.gettext
 
 
@@ -41,8 +42,8 @@ class AvailabilityForm(forms.Form):
 class EmailAuthenticationForm(forms.Form):
     inputEmail = forms.EmailField(label=_("Email"))
     inputPassword = forms.CharField(label=_("Password"),
-                               strip=False,
-                               widget=forms.PasswordInput)
+                                    strip=False,
+                                    widget=forms.PasswordInput)
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -97,4 +98,3 @@ class EmailAuthenticationForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
-

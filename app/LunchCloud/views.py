@@ -5,17 +5,17 @@ import datetime
 import json
 import logging
 
+import rest_framework.response
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import RedirectView
 from rest_framework.views import APIView
-import rest_framework.response
+
 import LunchCloud.forms
 from LunchCloud import serializers
+from LunchCloud.helpers import date_from_string
 from LunchCloud.models import Profile, IntroductionCode, LunchAppointment, Availability, FoodOption, Location
-from LunchCloud.serializers import ProfileSerializer, AppointmentSerializer
 
 
 @login_required
@@ -72,7 +72,7 @@ class RedirectLoginView(RedirectView):
 
 
 class InvitedToEvents(APIView):
-    def get(self, request: HttpRequest, format=None):
+    def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
         except AttributeError:
@@ -97,7 +97,7 @@ class InvitedToEvents(APIView):
 
 
 class PublicLunchEvents(APIView):
-    def get(self, request: HttpRequest, format=None):
+    def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
         except AttributeError:
@@ -122,7 +122,7 @@ class PublicLunchEvents(APIView):
 
 
 class MyLunchAppointments(APIView):
-    def get(self, request: HttpRequest, format=None):
+    def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
         except AttributeError:
@@ -143,7 +143,7 @@ class MyLunchAppointments(APIView):
 
 
 class ProfileUpdate(APIView):
-    def post(self, request: HttpRequest, format=None):
+    def post(self, request: HttpRequest, frmt=None) -> HttpResponse:
         try:
             my_profile: Profile = self.request.user.profile
         except AttributeError:
@@ -176,7 +176,7 @@ class ProfileUpdate(APIView):
 
 
 class MyProfileDetails(APIView):
-    def get(self, request: HttpRequest, format=None):
+    def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
 
@@ -199,7 +199,7 @@ class MyProfileDetails(APIView):
 
 
 class MyAvailability(APIView):
-    def get(self, request: HttpRequest, format=None):
+    def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile: Profile = self.request.user.profile
 
@@ -248,12 +248,13 @@ class CreateAvailability(APIView):
         all_availabilities: [Availability] = []
 
         for date in dates:
-            logging.warning(date)
-            y, m, d = date.split('-')
-            logging.warning(date.split('-'))
+            dt = date_from_string(date)
+            starting_time = datetime.time(hour=9, minute=0, second=0)
+            ending_time = datetime.time(hour=18, minute=0, second=0)
+
             all_availabilities.append(Availability(
-                frm=datetime.datetime(year=int(y), month=int(m), day=int(d), hour=9, minute=0, second=0),
-                until=datetime.datetime(year=int(y), month=int(m), day=int(d), hour=18, minute=0, second=0),
+                frm=datetime.datetime.combine(dt, starting_time),
+                until=datetime.datetime.combine(dt, ending_time),
                 profile=my_profile
             ))
 
@@ -312,7 +313,8 @@ Locations Requested: {2}
         ret = []
         template = "{0} ({1}) - @ [{2} / {3} ({4})]"
         for app in appointments:
-            ret.append(template.format(app.title, app.event_date, app.location, app.general_area.name, app.general_area.external_id))
+            ret.append(template.format(app.title, app.event_date, app.location, app.general_area.name,
+                                       app.general_area.external_id))
         return '\n'.join(ret)
 
     def post(self, request: HttpRequest, fmt=None):
@@ -331,8 +333,7 @@ Locations Requested: {2}
         logging.warning(self.verbose_logging(my_profile, post_data))
 
         location_ids = [loc.get('id') for loc in post_data.get('location')]
-        y, m, d = post_data.get('date').split('-')
-        dt = datetime.date(year=int(y), month=int(m), day=int(d))
+        dt = date_from_string(post_data.get('date'))
 
         appointments = LunchAppointment.objects.filter(
             general_area__external_id__in=location_ids).filter(
@@ -342,7 +343,8 @@ Locations Requested: {2}
         logging.debug("These are all available for the same date: {0}".format(dt))
         logging.debug(self.verbose_appointment_logging(LunchAppointment.objects.filter(event_date=dt)))
         logging.debug("These are all available for the same location: ({0})".format(location_ids))
-        logging.debug(self.verbose_appointment_logging(LunchAppointment.objects.filter(general_area__external_id__in=location_ids)))
+        logging.debug(self.verbose_appointment_logging(LunchAppointment.objects.filter(
+            eneral_area__external_id__in=location_ids)))
 
         serializer = serializers.SearchAPISerializer({
             'success': True,
@@ -353,7 +355,6 @@ Locations Requested: {2}
         })
 
         return rest_framework.response.Response(serializer.data)
-
 
 
 class Attend(APIView):

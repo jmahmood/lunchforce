@@ -13,14 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import rest_framework.authtoken.views
 from django.conf.urls import url, include
 from django.contrib import admin
-import django.contrib.auth.views
-from django.http import HttpResponse
-import os
+
 import LunchCloud.views
-from LunchCloud.forms import EmailAuthenticationForm
-import rest_framework.authtoken.views
 
 urlpatterns = [
     url(r'^$', LunchCloud.views.enrollment),

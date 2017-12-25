@@ -1,14 +1,6 @@
 from rest_framework import serializers
 
-from LunchCloud.models import Profile, Availability, FoodOption, LunchAppointment, IntroductionCode
-
-
-class LocationSerializer(serializers.Serializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.CharField()
-
-    def get_id(self, obj: FoodOption):
-        return obj.external_id
+from LunchCloud.models import Profile, Availability, FoodOption, LunchAppointment, IntroductionCode, Location
 
 
 class WhitelistSerializer(serializers.Serializer):
@@ -70,10 +62,10 @@ class LocationSerializer(serializers.Serializer):
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
 
-    def get_id(self, obj: FoodOption):
+    def get_id(self, obj: Location):
         return obj.external_id
 
-    def get_name(self, obj: FoodOption):
+    def get_name(self, obj: Location):
         return obj.name
 
 

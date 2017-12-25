@@ -5,10 +5,10 @@ import subprocess
 # export HEROKU_STAGING_APP_NAME=jbm-lunchforce-staging
 #  ./manage.py shell --settings=Lunch.local
 
-db_from_env = dj_database_url.config(conn_max_age=500)
+db_from_env = dj_database_url.config(conn_max_age=5)
+test_db_from_env = dj_database_url.config(env='HEROKU_POSTGRESQL_JADE_URL', conn_max_age=5)
 DATABASES['default'].update(db_from_env)
-DATABASES['default']['TEST'].update(db_from_env)
-DATABASES['default']['CONN_MAX_AGE'] = 5
+DATABASES['default']['TEST'].update(test_db_from_env)  # Doesn't work correctly.
 
 logging.warning(DATABASES)
 
