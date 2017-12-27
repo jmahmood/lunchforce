@@ -32,8 +32,9 @@ urlpatterns = [
     url(r'^api/my-appointments/$', LunchCloud.views.MyLunchAppointments.as_view()),
     url(r'^api/update-profile/$', LunchCloud.views.ProfileUpdate.as_view()),
     url(r'^api/my-profile/$', LunchCloud.views.MyProfileDetails.as_view()),
-    url(r'^enroll/$', LunchCloud.views.enrollment),
-    url(r'^login/$', LunchCloud.views.RedirectLoginView.as_view()),
+    url(r'^api/enroll/$', LunchCloud.views.EnrollView.as_view()),
+    url(r'^api/introduce/$', LunchCloud.views.IntroductionAPI.as_view()),
+    url(r'^logout/$', LunchCloud.views.Logout.as_view()),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^api-token-auth/', rest_framework.authtoken.views.obtain_auth_token)

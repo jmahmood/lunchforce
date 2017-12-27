@@ -18,5 +18,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for date_str in options['date']:
             invite_bot = AutoInviteBot(date_str)
-            invite_bot()
+            results = invite_bot()
 

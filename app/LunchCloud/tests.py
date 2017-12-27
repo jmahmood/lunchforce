@@ -3,19 +3,35 @@ from __future__ import unicode_literals
 
 import datetime
 import logging
+from typing import List, Tuple
 
 import django.db.utils
+import itertools
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 # Create your tests here.
 from LunchCloud.forms import RegistrationForm, AvailabilityForm
-from LunchCloud.helpers import make_groups, LunchPerson, LunchAppointmentGroup, attendee_meeting_dict, FinderBot
-from LunchCloud.models import Profile, IntroductionCode, FoodOption, Location, LunchAppointment
+from LunchCloud.helpers import LunchPerson, LunchAppointmentGroup, FinderBot, AutoInviteBot
+from LunchCloud.models import Profile, IntroductionCode, FoodOption, Location, LunchAppointment, Availability
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import force_authenticate
+
+from LunchCloud.views import CreateAvailability, MyAvailability
 
 
-class MatchingBaseCase(TestCase):
+def attendee_meeting_dict(recent_lunch_meetings: {LunchAppointment}) -> {Profile: LunchAppointment}:
+    ret = dict.fromkeys([attendee for meeting in recent_lunch_meetings
+                         for attendee in meeting.attendees.all()], [])
+
+    for a, m in [(attendee, meeting) for meeting in recent_lunch_meetings for attendee in meeting.attendees.all()]:
+        ret[a].append(m)
+
+    return ret
+
+
+class TestCaseWithProfiles(TestCase):
     def setUp(self):
         super().setUp()
         user_names = ['jack', 'jill', 'john', 'jerry', 'jim']
@@ -69,8 +85,123 @@ class MatchingBaseCase(TestCase):
         self.korean_lover_users = User.objects.filter(username__in=korean_lovers)
         self.multiple_location_users = User.objects.filter(username__in=multiple_locations)
 
+
+class TestAvailabilityAPI(TestCaseWithProfiles):
+
+    def testNoDuplicateRecords(self):
+        """You should not lose availability dates in February or in December when you update January"""
+
+        available = datetime.datetime.today() + datetime.timedelta(days=32)
+        available = datetime.datetime(year=available.year, month=available.month, day=1)
+
+        existing_availability = Availability(
+            frm=available, until=available + datetime.timedelta(hours=1), profile=self.users[0].profile)
+        existing_availability.save()
+
+        factory = APIRequestFactory()
+
+        view = MyAvailability.as_view()
+        request = factory.get('/api/my-availability/', format='json')
+        force_authenticate(request, user=self.users[0])
+        response = view(request)
+        data = response.data
+        self.assertIn(existing_availability.frm, [d.date_str for d in data.availability])
+        logging.warning(existing_availability.frm in [d.date_str for d in data.availability])
+
+
+
+
+        create_availability_by_api = available + datetime.timedelta(days=32)
+        dts = ['{0}-{1}-{2}'.format(create_availability_by_api.year, create_availability_by_api.month, x)
+               for x in range(1, 9)]
+        logging.warning(dts)
+
+        payload = {"month": create_availability_by_api.month,
+                   "date": dts}
+
+        view = CreateAvailability.as_view()
+        request = factory.post('/api/update-availability/', payload, format='json')
+        force_authenticate(request, user=self.users[0])
+        response = view(request)
+        logging.warning(response.data)
+
+
+class InvitationTestCases(TestCaseWithProfiles):
+    """Tests that are used with helpers.AutoInviteBot, and with the commandline tool"""
+
+    def setUp(self):
+        """
+        Must create people who have events available on date (d) and both have don't have confirmed events on the same day.
+
+
+
+        :return:
+        """
+        super().setUp()
+
+    def testCreateAppointmentWithHistory(self):
+        # 4 people, 3 people in each group.
+        people = self.users[0:4]
+
+        for i, subset in enumerate(itertools.combinations(people, 3)):
+            dt = (datetime.datetime.today() - datetime.timedelta(days=i)).date()
+            event = LunchAppointment(title='Test Invitation',
+                                     general_area=self.locations[0],
+                                     event_date=dt,
+                                     creator=self.users[0].profile,
+                                     min_attendees=2,
+                                     max_attendees=5,
+                                     status='done')
+            event.save()
+            event.invitees.add(*[user.profile for user in subset])
+            event.attendees.add(*[user.profile for user in subset])
+
+        # add availability for that day.
+        available = datetime.datetime.today() + datetime.timedelta(days=1)
+
+        for u in self.users:
+            x = Availability(
+                frm=available, until=available + datetime.timedelta(hours=1), profile=u.profile)
+            x.save()
+
+        aib = AutoInviteBot("{0}-{1}-{2}".format(available.year, available.month, available.day))
+        results = aib()
+        # Person 4 did not attend any of the previous meetings so he or she should be in here.
+        self.assertIn(self.users[4].profile, results[0][1][0].invitees.all())
+
+    def testCreateAppointment(self):
+        appointment_date = datetime.datetime.today() + datetime.timedelta(days=45)
+        event = LunchAppointment(title='TestInvitations',
+                                 general_area=self.locations[0],
+                                 event_date=appointment_date.date(),
+                                 creator=self.users[0].profile,
+                                 min_attendees=2,
+                                 max_attendees=5,
+                                 status='proposed')
+        event.save()
+        event.invitees.add(*[u.profile for u in self.users[0:3]])
+        event.attendees.add(self.users[0].profile)
+
+        # add availability for that day.
+        for u in self.users:
+            x = Availability(
+                frm=appointment_date, until=appointment_date + datetime.timedelta(hours=1), profile=u.profile)
+            x.save()
+
+        aib = AutoInviteBot("{0}-{1}-{2}".format(appointment_date.year, appointment_date.month, appointment_date.day))
+        aib()
+
+        updated_event = LunchAppointment.objects.get(pk=event.pk)
+
+        self.assertEqual(len(updated_event.invitees.all()), 4)
+
+
+class BinAlgorithmTestCases(TestCaseWithProfiles):
+    def setUp(self):
+        super().setUp()
+
     def testBaseCase(self):
-        lunch_people = [LunchPerson.factory(u.profile, {})
+        lunch_people = [LunchPerson.factory(u.profile, {}, {})
                         for u in self.users]
 
         for lp in lunch_people:
@@ -87,7 +218,7 @@ class MatchingBaseCase(TestCase):
             self.assertEquals(len(grp.people), 4)
 
     def testThreeNoobs(self):
-        lunch_people = [LunchPerson.factory(u.profile, {}) for u in self.users]
+        lunch_people = [LunchPerson.factory(u.profile, {}, {}) for u in self.users]
 
         for lp in lunch_people:
             lp.is_noob = False
@@ -101,7 +232,7 @@ class MatchingBaseCase(TestCase):
 
     def testLocationOverlap(self):
 
-        lunch_people = [LunchPerson.factory(u.profile, {})
+        lunch_people = [LunchPerson.factory(u.profile, {}, {})
                         for u in self.multiple_location_users]
 
         for lp in lunch_people:
@@ -113,7 +244,7 @@ class MatchingBaseCase(TestCase):
 
     def testPreexistingEvent(self):
 
-        lunch_people = [LunchPerson.factory(u.profile, {})
+        lunch_people = [LunchPerson.factory(u.profile, {}, {})
                         for u in self.users]
 
         for lp in lunch_people:
@@ -146,7 +277,7 @@ class MatchingBaseCase(TestCase):
 
         my_recent_lunch_meetings = attendee_meeting_dict([app])
 
-        lunch_people = [LunchPerson.factory(u.profile, my_recent_lunch_meetings)
+        lunch_people = [LunchPerson.factory(u.profile, my_recent_lunch_meetings, {})
                         for u in self.users]
 
         for lp in lunch_people:
@@ -174,9 +305,9 @@ class MatchingBaseCase(TestCase):
         p.locations.add(self.locations[0])
         p.whitelist.add(self.food_options[0])
 
-        lp = LunchPerson.factory(p, {})
+        lp = LunchPerson.factory(p, {}, {})
 
-        already_at_lunch_people = [LunchPerson.factory(u.profile, {})
+        already_at_lunch_people = [LunchPerson.factory(u.profile, {}, {})
                                    for u in self.users]
 
         for already_lunching in already_at_lunch_people:
@@ -202,7 +333,7 @@ class MatchingBaseCase(TestCase):
 
             u.profile.whitelist.add(self.food_options[1])
 
-        lunch_people = [LunchPerson.factory(u.profile, {}) for u in self.users[0:4]]
+        lunch_people = [LunchPerson.factory(u.profile, {}, {}) for u in self.users[0:4]]
 
         for lp in lunch_people:
             lp.is_noob = False
@@ -216,10 +347,10 @@ class MatchingBaseCase(TestCase):
 
     def testMultipleOverlappingTastes(self):
 
-        lunch_people = [LunchPerson.factory(u.profile, {})
+        lunch_people = [LunchPerson.factory(u.profile, {}, {})
                         for u in self.users[0:2]]
 
-        lunch_people = lunch_people + [LunchPerson.factory(u.profile, {}) for u in self.korean_lover_users[0:3]]
+        lunch_people = lunch_people + [LunchPerson.factory(u.profile, {}, {}) for u in self.korean_lover_users[0:3]]
 
         for lp in lunch_people:
             lp.is_noob = False

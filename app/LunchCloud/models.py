@@ -50,7 +50,7 @@ class Profile(models.Model):
 
     external_id = models.CharField(max_length=80, default=uuid_str)
     invited_by = models.ForeignKey("self", null=True, blank=True)
-    locations = models.ManyToManyField(Location, blank=True, related_name='locations')
+    locations = models.ManyToManyField(Location, blank=True, related_name='used_by')
     blacklist = models.ManyToManyField(FoodOption, blank=True, related_name='blacklisted_by')
     whitelist = models.ManyToManyField(FoodOption, blank=True, related_name='whitelisted_by')
 
@@ -70,6 +70,9 @@ class Availability(models.Model):
     frm = models.DateTimeField()
     until = models.DateTimeField()
     profile = models.ForeignKey(Profile)
+
+    class Meta:
+        unique_together = ('frm', 'profile')
 
 
 class LunchAppointment(models.Model):
@@ -102,6 +105,10 @@ class LunchAppointment(models.Model):
 
 
 class IntroductionCode(models.Model):
+    invitee_email = models.EmailField()
     invited_by = models.ForeignKey(Profile)
     code = models.CharField(default=uuid_str, max_length=50, verbose_name=_('Invitation Code'), unique=True)
     used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{0} - {1} ({2})".format(self.invitee_email, self.invited_by.user.username, self.used)

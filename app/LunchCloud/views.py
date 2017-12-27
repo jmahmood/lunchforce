@@ -6,7 +6,9 @@ import json
 import logging
 
 import rest_framework.response
-from django.contrib.auth.decorators import login_required
+import django.forms
+from django.contrib.auth.models import User
+from django.core.validators import validate_email
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import RedirectView
@@ -16,14 +18,7 @@ import LunchCloud.forms
 from LunchCloud import serializers
 from LunchCloud.helpers import date_from_string
 from LunchCloud.models import Profile, IntroductionCode, LunchAppointment, Availability, FoodOption, Location
-
-
-@login_required
-def index(request: HttpRequest) -> HttpResponse:
-    # This is a simple basic view which is powered by Angular.JS
-    # It just displays your upcoming
-    pass
-
+import LunchCloud.models
 
 def create_account(form_data: dict) -> (IntroductionCode, Profile):
     ic = IntroductionCode.objects.get(code=form_data.get('invitation_code'))
@@ -72,6 +67,8 @@ class RedirectLoginView(RedirectView):
 
 
 class InvitedToEvents(APIView):
+    """Produces a list of events that you are invited to."""
+
     def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
@@ -82,9 +79,9 @@ class InvitedToEvents(APIView):
                 'appointments': None
             }).data)
 
-        # This are, by nature, events that you are not invited to, but are public.
         appointments = LunchAppointment.objects.filter(
             status='proposed').filter(
+            event_date__gt=datetime.date.today()).filter(
             invitees__external_id__contains=my_profile.external_id).exclude(
             attendees__external_id__contains=my_profile.external_id)
 
@@ -97,6 +94,8 @@ class InvitedToEvents(APIView):
 
 
 class PublicLunchEvents(APIView):
+    """Events that you are _not_ invited to, but are _public_."""
+
     def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
@@ -107,11 +106,11 @@ class PublicLunchEvents(APIView):
                 'appointments': None
             }).data)
 
-        # This are, by nature, events that you are not invited to, but are public.
         appointments = LunchAppointment.objects.filter(
-            is_private=False).filter(
+            status='proposed').filter(
             event_date__gt=datetime.date.today()).exclude(
-            invitees__external_id__contains=my_profile.external_id)
+            invitees__external_id__contains=my_profile.external_id).filter(
+            is_private=False)
 
         serializer = serializers.AppointmentAPISerializer({
             'success': True,
@@ -122,6 +121,8 @@ class PublicLunchEvents(APIView):
 
 
 class MyLunchAppointments(APIView):
+    """Returns a list of appointments that you have confirmed that you wish to attend."""
+
     def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
@@ -143,6 +144,8 @@ class MyLunchAppointments(APIView):
 
 
 class ProfileUpdate(APIView):
+    """Allows you to make changes to your profile if you are logged in."""
+
     def post(self, request: HttpRequest, frmt=None) -> HttpResponse:
         try:
             my_profile: Profile = self.request.user.profile
@@ -155,7 +158,6 @@ class ProfileUpdate(APIView):
             }).data)
 
         post_data = json.loads(request.body)
-        logging.debug(post_data)
         profile_details = post_data.get('profile')
         location_ids = [l.get('id') for l in profile_details.get('locations')]
         food_ids = [fo.get('id') for fo in profile_details.get('whitelist')]
@@ -176,6 +178,8 @@ class ProfileUpdate(APIView):
 
 
 class MyProfileDetails(APIView):
+    """Name / email / other information about your profile."""
+
     def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile = self.request.user.profile
@@ -199,6 +203,8 @@ class MyProfileDetails(APIView):
 
 
 class MyAvailability(APIView):
+    """List of availability dates"""
+
     def get(self, request: HttpRequest, frmt=None):
         try:
             my_profile: Profile = self.request.user.profile
@@ -224,6 +230,8 @@ class MyAvailability(APIView):
 
 
 class CreateAvailability(APIView):
+    """Allows you to add new availability dates.  Automatically deletes dates that are not in this list."""
+
     def post(self, request: HttpRequest, fmt=None):
         try:
             my_profile: Profile = self.request.user.profile
@@ -237,18 +245,24 @@ class CreateAvailability(APIView):
             }).data)
 
         available_dates = json.loads(request.body)
-        month = available_dates.get('month')
         dates = available_dates.get('date')
 
-        # delete all dates in month and recreate
-        existing_availability = my_profile.availability_set.filter(frm__month=month)
-        existing_availability.delete()
-        # delete them all
+        all_dates = {date_from_string(dt) for dt in dates}
+
+        existing_availability = my_profile.availability_set.all()
+
+        # delete all dates that are no longer necessary.
+        to_delete = existing_availability.exclude(frm__in=all_dates)
+        if to_delete.count() > 0:
+            to_delete.delete()
+
+        already_exist = {t.frm.date() for t in existing_availability.filter(frm__in=all_dates)}
+
+        to_create = all_dates - already_exist
 
         all_availabilities: [Availability] = []
 
-        for date in dates:
-            dt = date_from_string(date)
+        for dt in to_create:
             starting_time = datetime.time(hour=9, minute=0, second=0)
             ending_time = datetime.time(hour=18, minute=0, second=0)
 
@@ -270,6 +284,8 @@ class CreateAvailability(APIView):
 
 
 class FoodOptions(APIView):
+    """A list of food options you can set in your profile / search.  Cachable, rarely changes."""
+
     def get(self, request: HttpRequest, fmt=None):
         food_options = FoodOption.objects.filter(enabled=True)
 
@@ -283,6 +299,8 @@ class FoodOptions(APIView):
 
 
 class Locations(APIView):
+    """A list of locations you can eat at for your profile / search.  Cachable, rarely changes."""
+
     def get(self, request: HttpRequest, fmt=None):
         locations = Location.objects.filter(enabled=True)
 
@@ -358,6 +376,8 @@ Locations Requested: {2}
 
 
 class Attend(APIView):
+    """Allows you to confirm that you will attend a lunch appointment"""
+
     def post(self, request: HttpRequest, fmt=None):
         try:
             my_profile: Profile = self.request.user.profile
@@ -383,3 +403,119 @@ class Attend(APIView):
             'youonly': None,
         })
         return rest_framework.response.Response(serializer.data)
+
+
+class IntroductionAPI(APIView):
+    """Allows you to introduce new people to the site."""
+
+    def post(self, request: HttpRequest, fmt=None):
+        try:
+            my_profile: Profile = self.request.user.profile
+        except AttributeError:
+            return rest_framework.response.Response(serializers.IntroductionAPISerializer({
+                'success': False,
+                'message': 'You are not logged in.',
+                'introduction_code': None
+            }).data)
+
+        post_data = json.loads(request.body)
+        invitee_email: str = post_data.get('invitationEmail')
+
+        try:
+            validate_email(invitee_email)
+        except django.forms.ValidationError:
+            return rest_framework.response.Response(serializers.IntroductionAPISerializer({
+                'success': False,
+                'message': 'You must include a valid email.',
+                'introduction_code': None
+            }).data)
+
+        if not (invitee_email.endswith('@salesforce.com') or invitee_email.endswith('@heroku.com')):
+            return rest_framework.response.Response(serializers.IntroductionAPISerializer({
+                'success': False,
+                'message': 'Invitee must have a Salesforce or Heroku email.',
+                'introduction_code': None
+            }).data)
+
+        introduction = IntroductionCode(
+            invited_by=my_profile,
+            invitee_email=invitee_email
+        )
+        introduction.save()
+
+        serializer = serializers.IntroductionAPISerializer({
+            'success': True,
+            'message': None,
+            'introduction_code': introduction.code,
+            'email': introduction.invitee_email
+        })
+        return rest_framework.response.Response(serializer.data)
+
+
+class Logout(APIView):
+    """Allows easy logouts from the API.  """
+
+    def get(self, request, format=None):
+        # simply delete the token to force a login
+        request.user.auth_token.delete()
+        serializer = serializers.LogoutAPISerializer({
+            'success': True,
+            'error_messages': None
+        })
+        return rest_framework.response.Response(serializer.data)
+
+
+class EnrollView(APIView):
+    """People with a valid Username / Password can enroll in our services."""
+
+    def post(self, request, format=None):
+        # simply delete the token to force a login
+        post_data = json.loads(request.body)
+
+        # Validate email / intro code pair.
+        try:
+            io = IntroductionCode.objects.get(invitee_email__iexact=post_data.get('enrollmentEmail'),
+                                              code=post_data.get('enrollmentIntroductionCode'),
+                                              used=False)
+            io.used = True
+            io.save()
+        except IntroductionCode.DoesNotExist:
+            serializer = serializers.EnrollmentAPISerializer({
+                'success': False,
+                'message': 'Invalid Introduction Code'
+            })
+            return rest_framework.response.Response(serializer.data)
+
+        try:
+            _ = User.objects.get(username=post_data.get('enrollmentEmail'))
+            serializer = serializers.EnrollmentAPISerializer({
+                'success': False,
+                'message': 'User already registered'
+            })
+            return rest_framework.response.Response(serializer.data)
+
+        except User.DoesNotExist:
+            pass
+
+        new_user = User(email=post_data.get('enrollmentEmail'), username=post_data.get('enrollmentEmail'))
+        new_user.set_password(post_data.get('enrollmentPassword'))
+        new_user.save()
+
+        new_user_profile = Profile(
+            user=new_user,
+            invited_by=io.invited_by,
+        )
+
+        new_user_profile.save()
+
+        new_user_profile.locations.add(*list(Location.objects.filter(external_id__in=[p.get('id') for p in post_data.get('selectLocation')])))
+        new_user_profile.whitelist.add(*list(Location.objects.filter(external_id__in=[p.get('id') for p in post_data.get('selectWhitelist')])))
+
+        serializer = serializers.EnrollmentAPISerializer({
+            'success': True,
+            'message': None
+        })
+
+        return rest_framework.response.Response(serializer.data)
+
+

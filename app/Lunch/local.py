@@ -10,8 +10,6 @@ test_db_from_env = dj_database_url.config(env='HEROKU_POSTGRESQL_JADE_URL', conn
 DATABASES['default'].update(db_from_env)
 DATABASES['default']['TEST'].update(test_db_from_env)  # Doesn't work correctly.
 
-logging.warning(DATABASES)
-
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # Allow all host headers

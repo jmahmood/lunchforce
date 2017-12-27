@@ -1,3 +1,5 @@
+from typing import Dict
+
 from rest_framework import serializers
 
 from LunchCloud.models import Profile, Availability, FoodOption, LunchAppointment, IntroductionCode, Location
@@ -9,6 +11,17 @@ class WhitelistSerializer(serializers.Serializer):
 
     def get_id(self, obj: FoodOption):
         return obj.external_id
+
+
+class LocationSerializer(serializers.Serializer):
+    id = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+
+    def get_id(self, obj: Location):
+        return obj.external_id
+
+    def get_name(self, obj: Location):
+        return obj.name
 
 
 class ProfileSerializer(serializers.Serializer):
@@ -56,17 +69,6 @@ class FoodOptionAPISerializer(serializers.Serializer):
     success = serializers.BooleanField()
     message = serializers.CharField(max_length=80)
     food_options = FoodOptionSerializer(many=True)
-
-
-class LocationSerializer(serializers.Serializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-
-    def get_id(self, obj: Location):
-        return obj.external_id
-
-    def get_name(self, obj: Location):
-        return obj.name
 
 
 class LocationAPISerializer(serializers.Serializer):
@@ -145,8 +147,19 @@ class SearchAPISerializer(serializers.Serializer):
 
 class IntroductionAPISerializer(serializers.Serializer):
     success = serializers.BooleanField()
+    email = serializers.EmailField()
     message = serializers.CharField(max_length=80)
     introduction_code = serializers.SerializerMethodField()
 
-    def get_introduction_code(self, obj: IntroductionCode):
-        return obj.code
+    def get_introduction_code(self, obj: Dict[str, any]):
+        return obj.get('introduction_code')
+
+
+class LogoutAPISerializer(serializers.Serializer):
+    success = serializers.BooleanField()
+    error_messages = serializers.CharField(max_length=80)
+
+
+class EnrollmentAPISerializer(serializers.Serializer):
+    success = serializers.BooleanField()
+    message = serializers.CharField(max_length=80)
