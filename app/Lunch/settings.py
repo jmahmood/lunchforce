@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -173,9 +174,11 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, './staticfiles')
 STATIC_URL = '/static/'
 
 
+
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, '../', '../', 'static'),
+    os.path.join(PROJECT_ROOT, '../', '../', 'frontend'),
 )
 
 REST_FRAMEWORK = {
