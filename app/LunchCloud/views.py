@@ -20,6 +20,8 @@ from LunchCloud.helpers import date_from_string
 from LunchCloud.models import Profile, IntroductionCode, LunchAppointment, Availability, FoodOption, Location
 import LunchCloud.models
 
+from rest_framework.permissions import AllowAny
+
 def create_account(form_data: dict) -> (IntroductionCode, Profile):
     ic = IntroductionCode.objects.get(code=form_data.get('invitation_code'))
 
@@ -285,6 +287,7 @@ class CreateAvailability(APIView):
 
 class FoodOptions(APIView):
     """A list of food options you can set in your profile / search.  Cachable, rarely changes."""
+    permission_classes = (AllowAny,)
 
     def get(self, request: HttpRequest, fmt=None):
         food_options = FoodOption.objects.filter(enabled=True)
@@ -300,6 +303,7 @@ class FoodOptions(APIView):
 
 class Locations(APIView):
     """A list of locations you can eat at for your profile / search.  Cachable, rarely changes."""
+    permission_classes = (AllowAny,)
 
     def get(self, request: HttpRequest, fmt=None):
         locations = Location.objects.filter(enabled=True)
