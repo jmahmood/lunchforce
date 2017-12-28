@@ -376,14 +376,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-// http://localhost:8000/api/my-appointments/
-const SEARCH_URL = 'http://localhost:8000/api/search/';
-const ATTEND_EVENT_URL = 'http://localhost:8000/api/attend/';
-const MY_EVENTS_URL = 'http://localhost:8000/api/my-appointments/';
-const PUBLIC_EVENTS_URL = 'http://localhost:8000/api/public-appointments/';
-const INVITATEDTO_URL = 'http://localhost:8000/api/invitedto-appointments/';
-const MY_AVAILABILITY_URL = 'http://localhost:8000/api/my-availability/';
-const UPDATE_AVAILABILITY_URL = 'http://localhost:8000/api/update-availability/';
+// https://jbm-lunchforce-staging.herokuapp.com/api/my-appointments/
+const SEARCH_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/search/';
+const ATTEND_EVENT_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/attend/';
+const MY_EVENTS_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/my-appointments/';
+const PUBLIC_EVENTS_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/public-appointments/';
+const INVITATEDTO_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/invitedto-appointments/';
+const MY_AVAILABILITY_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/my-availability/';
+const UPDATE_AVAILABILITY_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/update-availability/';
 let AppointmentService = class AppointmentService {
     constructor(http) {
         this.http = http;
@@ -518,13 +518,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 // TODO
-const INTRODUCTION_URL = 'http://localhost:8000/api/introduce/';
-const ENROLLMENT_URL = 'http://localhost:8000/api/enroll/';
+const INTRODUCTION_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/introduce/';
+const ENROLLMENT_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/enroll/';
 //  Done
-const LOGIN_URL = 'http://localhost:8000/api-token-auth/';
-const LOGOUT_URL = 'http://localhost:8000/logout/';
-const GET_PROFILE_URL = 'http://localhost:8000/api/my-profile/';
-const PROFILE_UPDATE_URL = 'http://localhost:8000/api/update-profile/';
+const LOGIN_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api-token-auth/';
+const LOGOUT_URL = 'https://jbm-lunchforce-staging.herokuapp.com/logout/';
+const GET_PROFILE_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/my-profile/';
+const PROFILE_UPDATE_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/update-profile/';
 let AuthService = class AuthService {
     constructor(http) {
         this.http = http;
@@ -975,8 +975,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-const FOODOPTIONS_URL = 'http://localhost:8000/api/food-options/';
-const LOCATIONS_URL = 'http://localhost:8000/api/locations/';
+const FOODOPTIONS_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/food-options/';
+const LOCATIONS_URL = 'https://jbm-lunchforce-staging.herokuapp.com/api/locations/';
 let InitService = class InitService {
     constructor(http) {
         this.http = http;
