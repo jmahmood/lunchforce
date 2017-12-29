@@ -14,10 +14,10 @@ SECURE_SSL_REDIRECT = True
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', '')
-EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')
-EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', ''),
-EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', ''),
+EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', '')[0]
+EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')[0]
+EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', '')[0],
+EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', '')[0],
 EMAIL_SUBJECT_PREFIX = 'Staging LunchForce'
 
 from django.core.mail import send_mail
