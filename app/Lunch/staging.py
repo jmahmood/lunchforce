@@ -16,8 +16,8 @@ DEBUG = True
 
 EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', '')
 EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')
-EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', ''),
-EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', ''),
+EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', '')
+EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', '')
 EMAIL_SUBJECT_PREFIX = 'Staging LunchForce'
 
 
@@ -27,12 +27,3 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-
-print(os.getenv('MAILGUN_SMTP_SERVER', ''))
-print(EMAIL_HOST)
-print(os.getenv('MAILGUN_SMTP_PORT', ''))
-print(EMAIL_PORT)
-print(os.getenv('MAILGUN_SMTP_LOGIN', ''))
-print(EMAIL_HOST_USER)
-print(os.getenv('MAILGUN_SMTP_PASSWORD', ''))
-print(EMAIL_HOST_PASSWORD)
