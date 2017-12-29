@@ -20,12 +20,19 @@ EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', '')[0],
 EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', '')[0],
 EMAIL_SUBJECT_PREFIX = 'Staging LunchForce'
 
-from django.core.mail import send_mail
-
-send_mail('subject', 'body of the message', 'noreply@jbm-lunchforce-staging.herokuapp.com', ['jmahmood@salesforce.com', 'jawaad.mahmood@gmail.com'])
 
 DEFAULT_FROM_EMAIL = 'Jawaad Mahmood <jawaad.mahmood@ordisante.com>'
 ADMINS = (
     ('Jawaad Mahmood', 'jawaad.mahmood@ordisante.com'),
 )
 MANAGERS = ADMINS
+
+
+print(os.getenv('MAILGUN_SMTP_SERVER', ''))
+print(EMAIL_HOST)
+print(os.getenv('MAILGUN_SMTP_PORT', ''))
+print(EMAIL_PORT)
+print(os.getenv('MAILGUN_SMTP_LOGIN', ''))
+print(EMAIL_HOST_USER)
+print(os.getenv('MAILGUN_SMTP_PASSWORD', ''))
+print(EMAIL_HOST_PASSWORD)
