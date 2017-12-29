@@ -14,9 +14,18 @@ SECURE_SSL_REDIRECT = True
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-EMAIL_HOST = os.getenv('MAILGUN_SMTP_SERVER', '')
-EMAIL_PORT = os.getenv('MAILGUN_SMTP_PORT', '')
-EMAIL_HOST_USER = os.getenv('MAILGUN_SMTP_LOGIN', ''),
-EMAIL_HOST_PASSWORD = os.getenv('MAILGUN_SMTP_PASSWORD', ''),
+EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', '')
+EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')
+EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', ''),
+EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', ''),
 EMAIL_SUBJECT_PREFIX = 'Staging LunchForce'
-EMAIL_USE_TLS = True
+
+from django.core.mail import send_mail
+
+send_mail('subject', 'body of the message', 'noreply@jbm-lunchforce-staging.herokuapp.com', ['jmahmood@salesforce.com', 'jawaad.mahmood@gmail.com'])
+
+DEFAULT_FROM_EMAIL = 'Jawaad Mahmood <jawaad.mahmood@ordisante.com>'
+ADMINS = (
+    ('Jawaad Mahmood', 'jawaad.mahmood@ordisante.com'),
+)
+MANAGERS = ADMINS
