@@ -18,11 +18,10 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic import RedirectView
 from django.views.static import serve
-
 import LunchCloud.views
 
 urlpatterns = [
-    url(r'^$', serve, kwargs={'document_root': 'frontend', 'path': 'index.html'}),
+    url(r'^$', serve, kwargs={'document_root': '../frontend', 'path': 'index.html'}),
     url(r'^api/attend/$', LunchCloud.views.Attend.as_view()),
     url(r'^api/search/$', LunchCloud.views.Search.as_view()),
     url(r'^api/locations/$', LunchCloud.views.Locations.as_view()),
@@ -39,6 +38,7 @@ urlpatterns = [
     url(r'^logout/$', LunchCloud.views.Logout.as_view()),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^reset/', include('password_reset.urls')),
     url(r'^api-token-auth/', rest_framework.authtoken.views.obtain_auth_token),
     url(r'^(?!/?static/)(?!/?media/)(?P<path>.*\..*)$', RedirectView.as_view(url='/static/%(path)s', permanent=False)),
 ]

@@ -20,3 +20,4 @@ pyasn1==0.1.9
 pycparser==2.14
 
 django-cors-headers
+django-password-reset
