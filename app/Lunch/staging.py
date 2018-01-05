@@ -9,7 +9,7 @@ test_db_from_env = dj_database_url.config(env='HEROKU_POSTGRESQL_JADE_URL', conn
 DATABASES['default']['TEST'].update(test_db_from_env)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-ALLOWED_HOSTS = ['jbm-lunchforce-staging.herokuapp.com']
+ALLOWED_HOSTS = ['jbm-lunchforce-staging.herokuapp.com', 'staging.rocklunch.com']
 SECURE_SSL_REDIRECT = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
