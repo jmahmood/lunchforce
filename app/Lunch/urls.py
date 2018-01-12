@@ -21,9 +21,9 @@ from django.views.static import serve
 import LunchCloud.views
 
 urlpatterns = [
-    url(r'^$', serve, kwargs={'document_root': 'frontend', 'path': 'en/index.html'}), # redirects to English or Japanese depending on blah blah
-    url(r'ja/^$', serve, kwargs={'document_root': 'frontend', 'path': 'ja/index.html'}),
-    url(r'en/^$', serve, kwargs={'document_root': 'frontend', 'path': 'en/index.html'}),
+    url(r'^$', serve, kwargs={'document_root': 'frontend', 'path': 'index.html'}), # redirects to English or Japanese depending on blah blah
+    url(r'^ja/$', serve, kwargs={'document_root': 'frontend', 'path': 'ja/index.html'}),
+    url(r'^en/$', serve, kwargs={'document_root': 'frontend', 'path': 'en/index.html'}),
     url(r'^api/attend/$', LunchCloud.views.Attend.as_view()),
     url(r'^api/search/$', LunchCloud.views.Search.as_view()),
     url(r'^api/locations/$', LunchCloud.views.Locations.as_view()),
