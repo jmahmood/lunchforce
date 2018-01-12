@@ -12,7 +12,6 @@ _ = gettext.gettext
 
 _THESEED = 'jmahmood'  # The username of the original user who invites everyone.
 
-
 def uuid_str():
     return str(uuid.uuid4())
 

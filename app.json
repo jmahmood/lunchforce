@@ -19,7 +19,7 @@
   "formation": {
   },
   "addons": [
-    "heroku-postgresql", "papertrail", "newrelic", "heroku-kafka:basic-0"
+    "heroku-postgresql", "papertrail", "newrelic", "heroku-kafka:basic-0", "librato-metrics"
   ],
   "keywords": ["python", "django" ],
   "buildpacks": [
