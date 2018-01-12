@@ -178,6 +178,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, '../', '../', 'static'),
     os.path.join(PROJECT_ROOT, '../', '../', 'frontend'),
+    os.path.join(PROJECT_ROOT, '../', '../', 'frontend', 'en'),
+    os.path.join(PROJECT_ROOT, '../', '../', 'frontend', 'ja'),
 )
 
 REST_FRAMEWORK = {
